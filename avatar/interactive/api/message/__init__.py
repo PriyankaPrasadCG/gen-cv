@@ -400,5 +400,7 @@ def chat_complete(messages):
     }
 
     response = requests.post(url, headers=headers, data=json.dumps(data)).json()
+    if("&" in response):
+        response = response.lower().replace(" & ", " and ")
 
     return response
