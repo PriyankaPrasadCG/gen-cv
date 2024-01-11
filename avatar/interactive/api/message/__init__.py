@@ -34,78 +34,78 @@ blue, end_blue = '\033[36m', '\033[0m'
 place_orders = False
 
 functions = [
-    {
-        "name": "get_bonus_points",
-        "description": "Check the amount of customer bonus / loyalty points",
-        "parameters": {
-            "type": "object",
-            "properties": {
-                "account_id": {
-                    "type": "number",
-                    "description": "Four digit account number (i.e., 1005, 2345, etc.)"
+                {
+                    "name": "get_bonus_points",
+                    "description": "Check the amount of customer bonus / loyalty points",
+                    "parameters": {
+                        "type": "object",
+                        "properties": {
+                            "account_id": {
+                                "type": "number",
+                                "description": "Four digit account number (i.e., 1005, 2345, etc.)"
+                            },
+                        },
+                        "required": ["account_id"],
+                    }
                 },
-            },
-            "required": ["account_id"],
-        }
-    },
-    {
-        "name": "get_order_details",
-        "description": "Check customer account for expected delivery date of existing orders based on the provided parameters",
-        "parameters": {
-            "type": "object",
-            "properties": {
-                "account_id": {
-                    "type": "number",
-                    "description": "Four digit account number (i.e., 1005, 2345, etc.)"
+                {
+                    "name": "get_order_details",
+                    "description": "Check customer account for expected delivery date of existing orders based on the provided parameters",
+                    "parameters": {
+                        "type": "object",
+                        "properties": {
+                            "account_id": {
+                                "type": "number",
+                                "description": "Four digit account number (i.e., 1005, 2345, etc.)"
+                            },
+                        },
+                        "required": ["account_id"],
+                    }
                 },
-            },
-            "required": ["account_id"],
-        }
-    },
-    {
-        "name": "order_product",
-        "description": "Order a product based on the provided parameters",
-        "parameters": {
-            "type": "object",
-            "properties": {
-                "account_id": {
-                    "type": "number",
-                    "description": "Four digit account number (i.e., 1005, 2345, etc.)"
+                {
+                    "name": "order_product",
+                    "description": "Order a product based on the provided parameters",
+                    "parameters": {
+                        "type": "object",
+                        "properties": {
+                            "account_id": {
+                                "type": "number",
+                                "description": "Four digit account number (i.e., 1005, 2345, etc.)"
+                            },
+                            "product_name": {
+                                "type": "string",
+                                "description": "Name of the product to order (i.e., Elysian Voyager, Terra Roamer, AceMaster 3000, Server & Style)"
+                            },
+                            "quantity": {
+                                "type": "number",
+                                "description": "Quantity of the product to order (i.e., 1, 2, etc.)"
+                            }
+                        },
+                        "required": ["account_id", "product_name", "quantity"],
+                    }
                 },
-                "product_name": {
-                    "type": "string",
-                    "description": "Name of the product to order (i.e., Elysian Voyager, Terra Roamer, AceMaster 3000, Server & Style)"
-                },
-                "quantity": {
-                    "type": "number",
-                    "description": "Quantity of the product to order (i.e., 1, 2, etc.)"
+                    {
+                    "name": "get_product_information",
+                    "description": "Find information about a product based on a user question. Use only if the requested information if not already available in the conversation context.",
+                    "parameters": {
+                        "type": "object",
+                        "properties": {
+                            "user_question": {
+                                "type": "string",
+                                "description": "User question (i.e., do you have tennis shoes for men?, etc.)"
+                            },
+                        },
+                        "required": ["user_question"],
+                    }
                 }
-            },
-            "required": ["account_id", "product_name", "quantity"],
-        }
-    },
-        {
-        "name": "get_product_information",
-        "description": "Find information about a product based on a user question. Use only if the requested information if not already available in the conversation context.",
-        "parameters": {
-            "type": "object",
-            "properties": {
-                "user_question": {
-                    "type": "string",
-                    "description": "User question (i.e., do you have tennis shoes for men?, etc.)"
-                },
-            },
-            "required": ["user_question"],
-        }
-    }
-]
+            ]
 
 def main(req: func.HttpRequest) -> func.HttpResponse:
     logging.info('Python HTTP trigger function processed a request.')
 
     messages = json.loads(req.get_body())
 
-    response = chat_complete(messages, functions= functions, function_call= "auto")
+    response = chat_complete(messages)
 
     products = []
     
@@ -158,7 +158,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
             "content": function_response,
         })
      
-        response = chat_complete(messages, functions= functions, function_call= "none")
+        response = chat_complete(messages)
         
         response_message = response["choices"][0]["message"]
 
@@ -382,7 +382,7 @@ def get_product_information(user_question, categories='*', top_k=1):
     }
     return json.dumps(response_data)
 
-def chat_complete(messages, functions, function_call='auto'):
+def chat_complete(messages):
     """  Return assistant chat response based on user query. Assumes existing list of messages """
     
     url = f"{AOAI_endpoint}/openai/deployments/{chat_deployment}/chat/completions?api-version={AOAI_api_version}"
@@ -394,8 +394,6 @@ def chat_complete(messages, functions, function_call='auto'):
 
     data = {
         "messages": messages,
-        "functions": functions,
-        "function_call": function_call,
         "temperature" : 0,
     }
 
