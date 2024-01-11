@@ -124,7 +124,7 @@ async function generateText(prompt) {
 
   messages.push({
     role: 'user',
-    content: prompt
+    content: prompt + ". Do not generate any special characters in the output."
   });
 
   let generatedText
@@ -241,7 +241,7 @@ window.startSession = () => {
 }
 
 async function greeting() {
-  addToConversationHistory("Hello, my name is Lisa. How can I help you?", "light")
+  addToConversationHistory("Hello, my name is Daisy. I am a Sogeti Virtual Employee. How can I help you?", "light")
 
   let spokenText = "<speak version='1.0' xmlns='http://www.w3.org/2001/10/synthesis' xmlns:mstts='https://www.w3.org/2001/mstts' xml:lang='en-US'><voice xml:lang='en-US' xml:gender='Female' name='en-US-JennyNeural'>Hello, my name is Lisa. How can I help you?</voice></speak>"
   speechSynthesizer.speakSsmlAsync(spokenText, (result) => {
@@ -274,7 +274,7 @@ window.speak = (text) => {
         console.log(`Detected language: ${language}`);
 
         const generatedResult = await generateText(text);
-        generatedResult = generatedResult.replace(" & ", " and ");
+        
         console.log(generatedResult);
         let spokenTextssml = `<speak version='1.0' xmlns='http://www.w3.org/2001/10/synthesis' xmlns:mstts='https://www.w3.org/2001/mstts' xml:lang='en-US'><voice xml:lang='en-US' xml:gender='Female' name='en-US-JennyMultilingualNeural'><lang xml:lang="${language}">${generatedResult}</lang></voice></speak>`
 
