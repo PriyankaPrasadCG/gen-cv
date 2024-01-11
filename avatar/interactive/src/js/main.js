@@ -262,6 +262,7 @@ async function greeting() {
 
 window.speak = (text) => {
   async function speak(text) {
+    
     addToConversationHistory(text, 'dark')
 
     fetch("/api/detectLanguage?text="+text, {
