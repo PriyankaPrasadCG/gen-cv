@@ -159,7 +159,9 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
         })
      
         response = chat_complete(messages)
-        
+        if("&" in response):
+            response = response.lower().replace(" & ", " and ")
+
         response_message = response["choices"][0]["message"]
 
     messages.append({'role' : response_message['role'], 'content' : response_message['content']})
