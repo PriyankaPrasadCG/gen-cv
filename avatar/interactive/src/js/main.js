@@ -263,6 +263,7 @@ async function greeting() {
 window.speak = (text) => {
   async function speak(text) {
     text = text.replace(" & ", " and ");
+    console.log(text);
     addToConversationHistory(text, 'dark')
 
     fetch("/api/detectLanguage?text="+text, {
@@ -273,7 +274,8 @@ window.speak = (text) => {
         console.log(`Detected language: ${language}`);
 
         const generatedResult = await generateText(text);
-        
+        generatedResult = generatedResult.replace(" & ", " and ");
+        console.log(generatedResult);
         let spokenTextssml = `<speak version='1.0' xmlns='http://www.w3.org/2001/10/synthesis' xmlns:mstts='https://www.w3.org/2001/mstts' xml:lang='en-US'><voice xml:lang='en-US' xml:gender='Female' name='en-US-JennyMultilingualNeural'><lang xml:lang="${language}">${generatedResult}</lang></voice></speak>`
 
         if (language == 'ar-AE') {
