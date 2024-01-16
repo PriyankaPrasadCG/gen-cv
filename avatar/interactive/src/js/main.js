@@ -124,7 +124,7 @@ async function generateText(prompt) {
 
   messages.push({
     role: 'user',
-    content: prompt + ". Do not generate any special characters in the output. Instruction: respond to the query as an Ai assistant and your name is Daisy."
+    content: prompt + ". Do not generate any special characters in the output. Instruction: respond to the query as an Ai assistant and your name is Daisy. Do not repeat your name in every answer."
   });
 
   let generatedText

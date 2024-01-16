@@ -200,6 +200,111 @@ def execute_sql_query(query, connection_string=database_connection_string, param
 
     return results
 
+def get_flightdetails(source, dest, date):
+
+    sourcecode = ""
+    destcode = ""
+    url = "https://sky-scrapper.p.rapidapi.com/api/v1/flights/searchAirport"
+    headers = {
+        "X-RapidAPI-Key": "97bb0c0c03msh839189349f61662p1da3a0jsne3f68c22a279",
+        "X-RapidAPI-Host": "sky-scrapper.p.rapidapi.com"
+    }
+    
+    querystring = {"query":source}
+    response_source = requests.get(url, headers=headers, params=querystring)
+    # Parse the JSON data
+    # Parse the JSON data
+    json_data_str = json.dumps(response_source.json())
+
+    #json_data = json_data_str.json()
+
+    # Parse the JSON data
+    data = json.loads(json_data_str)
+
+    # Extract 'skyId'
+    if 'data' in data and isinstance(data['data'], list) and data['data']:
+        first_data_entry = data['data'][0]
+        if 'skyId' in first_data_entry:
+            sky_id = first_data_entry['skyId']
+            print("Sky ID:", sky_id)
+            sourcecode = sky_id
+    else:
+        print("Invalid JSON format or missing data.")
+    
+    querystring = {"query":dest}
+    response_dest = requests.get(url, headers=headers, params=querystring)
+    
+    json_data_str = json.dumps(response_dest.json())
+
+    #json_data = json_data_str.json()
+
+    # Parse the JSON data
+    data = json.loads(json_data_str)
+
+    # Extract 'skyId'
+    if 'data' in data and isinstance(data['data'], list) and data['data']:
+        first_data_entry = data['data'][0]
+        if 'skyId' in first_data_entry:
+            sky_id = first_data_entry['skyId']
+            print("Sky ID:", sky_id)
+            destcode = sky_id
+    else:
+        print("Invalid JSON format or missing data.")
+        
+    url = "https://sky-scrapper.p.rapidapi.com/api/v1/flights/searchFlights"
+
+        # Given parameters
+    parameters = {
+        "originSkyId": sourcecode,
+        "destinationSkyId": destcode,
+        "originEntityId": "27544008",
+        "destinationEntityId": "27537542",
+        "date": "2024-02-20",
+        "adults": "1",
+        "currency": "USD",
+        "market": "en-US",
+        "countryCode": "US"
+    }
+
+    # Create a URL query string
+    querystring = urllib.parse.urlencode(parameters)
+    #querystring = {"originSkyId":"LOND","destinationSkyId":"BOM","originEntityId":"27544008","destinationEntityId":"27537542","date":"2024-02-20","adults":"1","currency":"USD","market":"en-US","countryCode":"US"}
+    print(query)
+    headers = {
+        "X-RapidAPI-Key": "97bb0c0c03msh839189349f61662p1da3a0jsne3f68c22a279",
+        "X-RapidAPI-Host": "sky-scrapper.p.rapidapi.com"
+    }
+
+    response = requests.get(url, headers=headers, params=querystring)
+    json_data_str = json.dumps(response.json())
+
+    #json_data = json_data_str.json()
+
+    # Parse the JSON data
+    data = json.loads(json_data_str)
+
+    # Extract itinerary details
+    itineraries = data['data']['itineraries']
+
+    # Display a maximum of 5 itineraries
+    num_to_display = min(5, len(itineraries))  # Display the minimum of 5 or the total number of itineraries
+
+    for index, itinerary in enumerate(itineraries[:num_to_display], start=1):
+        print(f"\nItinerary {index} of {num_to_display}:")
+        print("Itinerary ID:", itinerary['id'])
+        print("Price:", itinerary['price']['formatted'])
+        print("Departure City:", itinerary['legs'][0]['origin']['city'])
+        print("Departure Airport:", itinerary['legs'][0]['origin']['name'])
+        print("Departure Time:", itinerary['legs'][0]['departure'])
+        print("Arrival City:", itinerary['legs'][0]['destination']['city'])
+        print("Arrival Airport:", itinerary['legs'][0]['destination']['name'])
+        print("Arrival Time:", itinerary['legs'][0]['arrival'])
+        operating_carrier_name = itinerary['legs'][0]['segments'][0]['operatingCarrier']['name']
+        print("Operating Carrier Name:", operating_carrier_name)
+        stop_count = itinerary['legs'][0]['stopCount']
+        print("Stop Count:", stop_count)
+        print("-----")
+
 def get_bonus_points(account_id):
     """Retrieve bonus points and its cash value for a given account ID."""
      
@@ -387,6 +492,10 @@ def get_product_information(user_question, categories='*', top_k=1):
 def chat_complete(messages):
     """  Return assistant chat response based on user query. Assumes existing list of messages """
     
+    # Get embeddings from Azure Cognitive Search
+    embeddings = get_embeddings_from_azure_search(messages)
+
+
     url = f"{AOAI_endpoint}/openai/deployments/{chat_deployment}/chat/completions?api-version={AOAI_api_version}"
 
     headers = {
@@ -395,7 +504,7 @@ def chat_complete(messages):
     }
 
     data = {
-        "messages": messages,
+        "messages": embeddings,
         "temperature" : 0,
     }
 
@@ -404,3 +513,28 @@ def chat_complete(messages):
         response = response.lower().replace(" & ", " and ")
 
     return response
+
+
+def get_embeddings_from_azure_search(messages):
+    # Code to fetch embeddings from Azure Cognitive Search
+    # Replace placeholders with your actual Azure Cognitive Search endpoint, API key, and index name
+    
+    search_url = f"{search_endpoint}/indexes/{search_index_name}/docs/search?api-version={search_api_version}"
+    
+    headers = {
+        "Content-Type": "application/json",
+        "api-key": {search_key}
+    }
+
+    search_params = {
+        "searchFields": "messages",
+        "search": " ".join(messages),
+        "select": "embeddings"
+    }
+
+    response = requests.get(search_url, headers=headers, params=search_params).json()
+    
+    # Extract embeddings from the Azure Cognitive Search response
+    embeddings = [hit["document"]["embeddings"] for hit in response["value"] if "document" in hit]
+
+    return embeddings
