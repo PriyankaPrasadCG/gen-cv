@@ -568,6 +568,9 @@ def get_embeddings_from_azure_search(messages):
 
 
 def automate_query_response(query):
+    print("Azure automate_query_response")
+    print(query)
+    print("-------------------------------------------------")
     API_KEY = "8f883522af8b48829a01b12446382361"
     RESOURCE_ENDPOINT = "https://daisygpt.openai.azure.com/"
     os.environ["OPENAI_API_TYPE"] = "azure"
@@ -576,8 +579,11 @@ def automate_query_response(query):
     os.environ["OPENAI_API_KEY"] = API_KEY
     
     query = ' '.join(query)
+    print(query)
+    print("-------------------------------------------------")
     embeddings = OpenAIEmbeddings(deployment='textembedding-ada-002-daisy', model="text-embedding-ada-002", chunk_size=1)
-
+    print(embeddings)
+    print("-------------------------------------------------")
     new_db = FAISS.load_local("faiss_index", embeddings)
 
     llm = AzureChatOpenAI(
@@ -597,6 +603,8 @@ def automate_query_response(query):
         input_variables=["human_input", "context"],
         template=template
     )
+    print(prompt)
+    print("-------------------------------------------------")
     chain = load_qa_chain(llm, chain_type="stuff", prompt=prompt)
 
     # Assuming 'new_db.similarity_search' returns the relevant documents
