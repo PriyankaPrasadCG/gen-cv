@@ -133,11 +133,15 @@ async function generateText(prompt) {
     messages = data["messages"];
     products = data["products"]
   });
+  console.log("---------------------->>>>>>>>>>>")
+  console.log(generatedText)
 
   addToConversationHistory(generatedText, 'light');
   if(products.length > 0) {
     addProductToChatHistory(products[0]);
   }
+  console.log(generatedText)
+
   return generatedText;
 }
 
