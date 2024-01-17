@@ -7,3 +7,5 @@ requests
 pyodbc
 azure-communication-networktraversal
 azure-communication-identity
+langchain==0.0.352
+faiss==1.7.4

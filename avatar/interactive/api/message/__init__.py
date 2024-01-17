@@ -7,6 +7,17 @@ import pyodbc
 
 import azure.functions as func
 
+from langchain.document_loaders import PyPDFLoader
+from langchain.text_splitter import CharacterTextSplitter
+from langchain.docstore.document import Document
+from langchain.llms.openai import OpenAI
+from langchain import PromptTemplate
+from langchain.embeddings.openai import OpenAIEmbeddings
+from langchain.chains.question_answering import load_qa_chain
+from langchain.chat_models import AzureChatOpenAI
+from langchain_community.vectorstores import FAISS
+
+
 search_endpoint = os.getenv("AZURE_SEARCH_ENDPOINT")
 search_key = os.getenv("AZURE_SEARCH_API_KEY") 
 search_api_version = '2023-07-01-Preview'
@@ -96,6 +107,20 @@ functions = [
                             },
                         },
                         "required": ["user_question"],
+                    }
+                },
+                    {
+                    "name": "get_flightdetails",
+                    "description": "Find information about flight details based on a user question. Use only if the requested information if not already available in the conversation context.",
+                    "parameters": {
+                        "type": "object",
+                        "properties": {
+                            "user_question": {
+                                "type": "string",
+                                "description": "User question (i.e., find flight details for my travel from Dallas to London?, etc.)"
+                            },
+                        },
+                        "required": ["source location", "destination location", "travel date"],
                     }
                 }
             ]
@@ -304,6 +329,8 @@ def get_flightdetails(source, dest, date):
         stop_count = itinerary['legs'][0]['stopCount']
         print("Stop Count:", stop_count)
         print("-----")
+    return json_data_str
+
 
 def get_bonus_points(account_id):
     """Retrieve bonus points and its cash value for a given account ID."""
@@ -493,25 +520,25 @@ def chat_complete(messages):
     """  Return assistant chat response based on user query. Assumes existing list of messages """
     
     # Get embeddings from Azure Cognitive Search
-    embeddings = get_embeddings_from_azure_search(messages)
+    # embeddings = get_embeddings_from_azure_search(messages)
 
 
-    url = f"{AOAI_endpoint}/openai/deployments/{chat_deployment}/chat/completions?api-version={AOAI_api_version}"
+    # url = f"{AOAI_endpoint}/openai/deployments/{chat_deployment}/chat/completions?api-version={AOAI_api_version}"
 
-    headers = {
-        "Content-Type": "application/json",
-        "api-key": AOAI_key
-    }
+    # headers = {
+    #     "Content-Type": "application/json",
+    #     "api-key": AOAI_key
+    # }
 
-    data = {
-        "messages": embeddings,
-        "temperature" : 0,
-    }
+    # data = {
+    #     "messages": embeddings,
+    #     "temperature" : 0,
+    # }
 
-    response = requests.post(url, headers=headers, data=json.dumps(data)).json()
-    if("&" in response):
-        response = response.lower().replace(" & ", " and ")
-
+    # response = requests.post(url, headers=headers, data=json.dumps(data)).json()
+    # if("&" in response):
+    #     response = response.lower().replace(" & ", " and ")
+    response = automate_query_response(messages)
     return response
 
 
@@ -538,3 +565,39 @@ def get_embeddings_from_azure_search(messages):
     embeddings = [hit["document"]["embeddings"] for hit in response["value"] if "document" in hit]
 
     return embeddings
+
+
+def automate_query_response(query):
+    loader = PyPDFLoader('Sogeti.pdf')
+    doc = loader.load()
+
+    embeddings = OpenAIEmbeddings(deployment='textembedding-ada-002-daisy', model="text-embedding-ada-002", chunk_size=1)
+
+    new_db = FAISS.load_local("faiss_index", embeddings)
+
+    llm = AzureChatOpenAI(
+        deployment_name="gpt35turbodaisy",
+        model_name="gpt-35-turbo",
+    )
+
+    template = """You are a chatbot engaged in a conversation with a human. You have been provided with excerpts from a lengthy document, along with a question. Your task is to generate a final answer based on the given information.
+
+    If you are unable to provide an answer, please respond with 'I don't know..
+
+    {context}
+
+    Human: {human_input}
+    Chatbot:"""
+    prompt = PromptTemplate(
+        input_variables=["human_input", "context"],
+        template=template
+    )
+    chain = load_qa_chain(llm, chain_type="stuff", prompt=prompt)
+
+    # Assuming 'new_db.similarity_search' returns the relevant documents
+    docs = new_db.similarity_search(query)
+
+    # Assuming 'chain' is a function that generates a response based on the provided input
+    response = chain({"input_documents": docs, "human_input": query}, return_only_outputs=True)
+
+    return response
