@@ -585,7 +585,7 @@ def automate_query_response(query):
     print("-------------------------------------------------")
     
     
-    strFaisspath = blob_sas_url.split("?")[0] + f"daisyknowledgeblob / faiss_index?" + blob_sas_url.split("?")[1]
+    strFaisspath = blob_sas_url.split("?")[0] + f"daisyknowledgeblob/faiss_index?" + blob_sas_url.split("?")[1]
     
     new_db = FAISS.load_local(strFaisspath, embeddings)
 
