@@ -587,7 +587,7 @@ def automate_query_response(query):
     
     strFaisspath = blob_sas_url.split("?")[0] + f"daisyknowledgeblob/faiss_index?" + blob_sas_url.split("?")[1]
     
-    new_db = FAISS.load_local(strFaisspath, embeddings)
+    new_db = FAISS.load_local("./faiss_index", embeddings)
 
     llm = AzureChatOpenAI(
         deployment_name="gpt35turbodaisy",
