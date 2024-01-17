@@ -9,3 +9,4 @@ azure-communication-networktraversal
 azure-communication-identity
 langchain==0.0.352
 faiss-cpu
+openai
