@@ -578,8 +578,7 @@ def automate_query_response(query):
     os.environ["OPENAI_API_BASE"] = RESOURCE_ENDPOINT
     os.environ["OPENAI_API_KEY"] = API_KEY
     
-    query = json.dumps(query)
-    print(query)
+    
     print("-------------------------------------------------")
     embeddings = OpenAIEmbeddings(deployment='textembedding-ada-002-daisy', model="text-embedding-ada-002", chunk_size=1)
     print(embeddings)
