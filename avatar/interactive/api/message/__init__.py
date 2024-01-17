@@ -583,7 +583,7 @@ def automate_query_response(query):
     embeddings = OpenAIEmbeddings(deployment='textembedding-ada-002-daisy', model="text-embedding-ada-002", chunk_size=1)
     print(embeddings)
     print("-------------------------------------------------")
-    new_db = FAISS.load_local("faiss_index", embeddings)
+    new_db = FAISS.load_local("./faiss_index", embeddings)
 
     llm = AzureChatOpenAI(
         deployment_name="gpt35turbodaisy",
