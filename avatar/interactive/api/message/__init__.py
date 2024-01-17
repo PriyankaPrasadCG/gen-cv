@@ -568,9 +568,14 @@ def get_embeddings_from_azure_search(messages):
 
 
 def automate_query_response(query):
-    loader = PyPDFLoader('Sogeti.pdf')
-    doc = loader.load()
-
+    API_KEY = "8f883522af8b48829a01b12446382361"
+    RESOURCE_ENDPOINT = "https://daisygpt.openai.azure.com/"
+    os.environ["OPENAI_API_TYPE"] = "azure"
+    os.environ["OPENAI_API_VERSION"] = "2023-07-01-preview"
+    os.environ["OPENAI_API_BASE"] = RESOURCE_ENDPOINT
+    os.environ["OPENAI_API_KEY"] = API_KEY
+    
+    query = ' '.join(query)
     embeddings = OpenAIEmbeddings(deployment='textembedding-ada-002-daisy', model="text-embedding-ada-002", chunk_size=1)
 
     new_db = FAISS.load_local("faiss_index", embeddings)
