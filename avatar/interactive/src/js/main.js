@@ -123,9 +123,12 @@ async function generateText(prompt) {
     role: 'user',
     content: prompt + ". Do not generate any special characters in the output. Instruction: respond to the query as an Ai assistant and your name is Daisy. Do not repeat your name in every answer."
   });
-
+  console.log("--------------------?????????>>>>>>>>>>");
+  console.log("Prompt -->" + prompt)
   let generatedText
   let products
+  console.log("Calling the API in Message -->")
+
   await fetch(`/api/message`, { method: 'POST', headers: { 'Content-Type': 'application/json'}, body: JSON.stringify(messages) })
   .then(response => response.json())
   .then(data => {
@@ -273,7 +276,7 @@ window.speak = (text) => {
       .then(response => response.text())
       .then(async language => {
         console.log(`Detected language: ${language}`);
-
+        
         const generatedResult = await generateText(text);
         
         console.log(generatedResult);
