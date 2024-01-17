@@ -8,7 +8,7 @@ var system_prompt = `You are an AI assistant focused on delivering brief informa
 - NEVER GUESS FUNCTION INPUTS! If a user's request is unclear, request further clarification. 
 - Provide responses within 3 sentences, emphasizing conciseness and accuracy.
 - Pay attention to the language the customer is using in their latest statement and respond in the same language!
-
+`
 const TTSVoice = "en-US-JennyMultilingualNeural" // Update this value if you want to use a different voice
 
 const CogSvcRegion = "westeurope" // Fill your Azure cognitive services region here, e.g. westus2
