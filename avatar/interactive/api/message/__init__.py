@@ -630,11 +630,15 @@ def automate_query_response(query):
     app_logger.info("Arun" + os.path.join("message","faiss_index"))
     new_db = FAISS.load_local(os.path.join("message","faiss_index"), embeddings)
 
+    #llm = AzureChatOpenAI(
+    #    deployment_name="gpt35turbodaisy",
+    #    model_name="gpt-35-turbo",
+    #)
     llm = AzureChatOpenAI(
-        deployment_name="gpt35turbodaisy",
-        model_name="gpt-35-turbo",
+        azure_endpoint=os.getenv("AZURE_OPENAI_ENDPOINT"),
+        openai_api_version="2023-03-15-preview",
+        azure_deployment="gpt35turbodaisy",
     )
-
     #llm = AzureChatOpenAI(deployment_name = "gpt35turbodaisy",openai_api_version="2023-03-15-preview",
     #openai_api_key=AOAI_key, openai_api_base=AOAI_endpoint, temperature=0,model_name = "gpt-35-turbo",max_tokens=1500,max_retries=0,request_timeout=10,streaming=True )
     template = """You are a chatbot engaged in a conversation with a human. You have been provided with excerpts from a lengthy document, along with a question. Your task is to generate a final answer based on the given information.
