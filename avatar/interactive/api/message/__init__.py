@@ -613,11 +613,11 @@ def automate_query_response(query):
     os.environ["OPENAI_API_TYPE"] = "azure"
     os.environ["OPENAI_API_VERSION"] = "2023-07-01-preview"
     os.environ["OPENAI_API_BASE"] = RESOURCE_ENDPOINT
-    os.environ["OPENAI_API_KEY"] = API_KEY
+    os.environ["OPENAI_API_KEY"] = AOAI_key
     
     
     app_logger.info("Arun-------------------------------------------------")
-    embeddings = OpenAIEmbeddings(deployment='textembedding-ada-002-daisy', openai_api_key="eV4uivSyrb8jwCEZiyld1SOxnCNXTHonq1E65bsuSvAzSeCKH9UV", model="text-embedding-ada-002", chunk_size=1)
+    embeddings = OpenAIEmbeddings(deployment='textembedding-ada-002-daisy', openai_api_key=AOAI_key, model="text-embedding-ada-002", chunk_size=1)
     app_logger.info(embeddings)
     print("-------------------------------------------------")
     
@@ -625,18 +625,18 @@ def automate_query_response(query):
     app_logger.info("Arun" + os.path.join("message","faiss_index"))
     new_db = FAISS.load_local(os.path.join("message","faiss_index"), embeddings)
 
-    #llm = AzureChatOpenAI(
-    #    deployment_name="gpt35turbodaisy",
-    #    model_name="gpt-35-turbo",
-    #)
+    llm = AzureChatOpenAI(
+        deployment_name="gpt35turbodaisy",
+        model_name="gpt-35-turbo",
+    )
 
-    llm = AzureChatOpenAI(deployment_name = "gpt35turbodaisy",openai_api_version="2023-03-15-preview",
-    openai_api_key=AOAI_key, openai_api_base=AOAI_endpoint, temperature=0,model_name = "gpt-35-turbo",max_tokens=1500,max_retries=0,request_timeout=10,streaming=True )
+    #llm = AzureChatOpenAI(deployment_name = "gpt35turbodaisy",openai_api_version="2023-03-15-preview",
+    #openai_api_key=AOAI_key, openai_api_base=AOAI_endpoint, temperature=0,model_name = "gpt-35-turbo",max_tokens=1500,max_retries=0,request_timeout=10,streaming=True )
     template = """You are a chatbot engaged in a conversation with a human. You have been provided with excerpts from a lengthy document, along with a question. Your task is to generate a final answer based on the given information.
 
     If you are unable to provide an answer, please respond with 'I don't know..
 
-    {context}
+    {input_documents}
 
     Human: {human_input}
     Chatbot:"""
