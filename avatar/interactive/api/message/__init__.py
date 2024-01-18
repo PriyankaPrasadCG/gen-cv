@@ -617,7 +617,7 @@ def automate_query_response(query):
     
     
     app_logger.info("Arun-------------------------------------------------")
-    embeddings = OpenAIEmbeddings(deployment='textembedding-ada-002-daisy', model="text-embedding-ada-002", chunk_size=1)
+    embeddings = OpenAIEmbeddings(deployment='textembedding-ada-002-daisy', openai_api_key="eV4uivSyrb8jwCEZiyld1SOxnCNXTHonq1E65bsuSvAzSeCKH9UV", model="text-embedding-ada-002", chunk_size=1)
     app_logger.info(embeddings)
     print("-------------------------------------------------")
     
@@ -625,24 +625,30 @@ def automate_query_response(query):
     app_logger.info("Arun" + os.path.join("message","faiss_index"))
     new_db = FAISS.load_local(os.path.join("message","faiss_index"), embeddings)
 
-    url = f"{AOAI_endpoint}/openai/deployments/{chat_deployment}/chat/completions?api-version={AOAI_api_version}"
+    llm = AzureChatOpenAI(
+        deployment_name="gpt35turbodaisy",
+        model_name="gpt-35-turbo",
+    )
 
-    headers = {
-        "Content-Type": "application/json",
-        "api-key": AOAI_key
-    }
+    template = """You are a chatbot engaged in a conversation with a human. You have been provided with excerpts from a lengthy document, along with a question. Your task is to generate a final answer based on the given information.
 
-    data = {
-        "messages": embeddings,
-        "temperature" : 0,
-    }
+    If you are unable to provide an answer, please respond with 'I don't know..
 
-    response = requests.post(url, headers=headers, data=json.dumps(query)).json()
-    # if("&" in response):
-    #     response = response.lower().replace(" & ", " and ")
+    {context}
 
-    app_logger.info(response)
+    Human: {human_input}
+    Chatbot:"""
+    prompt = PromptTemplate(
+        input_variables=["human_input", "context"],
+        template=template
+    )
+    chain = load_qa_chain(llm, chain_type="stuff", prompt=prompt)
 
-    
+    # Assuming 'new_db.similarity_search' returns the relevant documents
+    docs = new_db.similarity_search(query)
+
+    # Assuming 'chain' is a function that generates a response based on the provided input
+    response = chain({"input_documents": docs, "human_input": query}, return_only_outputs=True)
 
     return response
+
