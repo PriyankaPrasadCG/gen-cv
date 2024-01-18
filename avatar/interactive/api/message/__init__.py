@@ -164,13 +164,17 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
     messages = json.loads(req.get_body())
 
     response = chat_complete(messages)
-
+    
+    logger.info("------------------RESPONSE-----------------------------")
+    logger.info(response)
+    logger.info("------------------RESPONSE END-----------------------------")
+    
     products = []
     
     try:
         response_message = response["choices"][0]["message"]
     except:
-        logging.info(response)
+        logger.info(response)
 
     # if the model wants to call a function
     if response_message.get("function_call"):
