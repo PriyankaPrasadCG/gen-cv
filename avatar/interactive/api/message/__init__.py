@@ -48,7 +48,7 @@ place_orders = False
 ##############################
 #Arun - Application insights
 # Set the Application Insights Instrumentation Key
-instrumentation_key = "1cbd322a-9f07-4eb1-9ad0-db7e89a9815f"
+instrumentation_key = "b8ee952b-adfd-4672-a16c-7ca2d3e2176d"
 os.environ["APPINSIGHTS_INSTRUMENTATIONKEY"] = instrumentation_key
 
 # Initialize the TelemetryClient
