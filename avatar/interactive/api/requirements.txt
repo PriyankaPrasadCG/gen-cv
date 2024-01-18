@@ -11,3 +11,5 @@ langchain==0.0.352
 faiss-cpu
 openai
 azure.storage
+applicationinsights
+appinsights
