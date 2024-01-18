@@ -560,22 +560,22 @@ def chat_complete(messages):
     # embeddings = get_embeddings_from_azure_search(messages)
 
 
-    url = f"{AOAI_endpoint}/openai/deployments/{chat_deployment}/chat/completions?api-version={AOAI_api_version}"
+    # url = f"{AOAI_endpoint}/openai/deployments/{chat_deployment}/chat/completions?api-version={AOAI_api_version}"
 
-    headers = {
-        "Content-Type": "application/json",
-        "api-key": AOAI_key
-    }
+    # headers = {
+    #     "Content-Type": "application/json",
+    #     "api-key": AOAI_key
+    # }
 
-    data = {
-        "messages": messages,
-        "temperature" : 0,
-    }
+    # data = {
+    #     "messages": messages,
+    #     "temperature" : 0,
+    # }
 
-    response = requests.post(url, headers=headers, data=json.dumps(data)).json()
-    if("&" in response):
-         response = response.lower().replace(" & ", " and ")
-    #response = automate_query_response(messages)
+    # response = requests.post(url, headers=headers, data=json.dumps(data)).json()
+    # if("&" in response):
+    #      response = response.lower().replace(" & ", " and ")
+    response = automate_query_response(messages)
     return response
 
 
@@ -634,10 +634,10 @@ def automate_query_response(query):
     #    deployment_name="gpt35turbodaisy",
     #    model_name="gpt-35-turbo",
     #)
-    llm = AzureChatOpenAI(
-        azure_endpoint=os.getenv("AZURE_OPENAI_ENDPOINT"),
-        openai_api_version="2023-03-15-preview",
-        azure_deployment="gpt35turbodaisy",
+     llm = AzureChatOpenAI(
+        azure_endpoint='https://daisygpt.openai.azure.com/',#os.getenv("AZURE_OPENAI_ENDPOINT"),
+        openai_api_version="2023-07-01-preview",
+        azure_deployment="gpt35turbodaisy"
     )
     #llm = AzureChatOpenAI(deployment_name = "gpt35turbodaisy",openai_api_version="2023-03-15-preview",
     #openai_api_key=AOAI_key, openai_api_base=AOAI_endpoint, temperature=0,model_name = "gpt-35-turbo",max_tokens=1500,max_retries=0,request_timeout=10,streaming=True )
