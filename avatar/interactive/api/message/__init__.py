@@ -608,16 +608,21 @@ def automate_query_response(query):
     app_logger.info("Arun - Azure automate_query_response")
     app_logger.info(query)
     app_logger.info("Arun - -------------------------------------------------")
-    API_KEY = "8f883522af8b48829a01b12446382361"
+    #API_KEY = "8f883522af8b48829a01b12446382361"
     RESOURCE_ENDPOINT = "https://daisygpt.openai.azure.com/"
-    os.environ["OPENAI_API_TYPE"] = "azure"
-    os.environ["OPENAI_API_VERSION"] = "2023-07-01-preview"
-    os.environ["OPENAI_API_BASE"] = RESOURCE_ENDPOINT
-    os.environ["OPENAI_API_KEY"] = AOAI_key
     
+
+    API_KEY= AOAI_key
+    
+    os.environ["OPENAI_API_TYPE"] = "azure"
+    os.environ["OPENAI_API_VERSION"] = "2023-03-15-preview"
+    os.environ["OPENAI_API_BASE"] = RESOURCE_ENDPOINT
+    os.environ["OPENAI_API_KEY"] = API_KEY
+
+    app_logger.info(AOAI_key)
     
     app_logger.info("Arun-------------------------------------------------")
-    embeddings = OpenAIEmbeddings(deployment='textembedding-ada-002-daisy', openai_api_key=AOAI_key, model="text-embedding-ada-002", chunk_size=1)
+    embeddings = OpenAIEmbeddings(deployment='textembedding-ada-002-daisy', model="text-embedding-ada-002", chunk_size=1)
     app_logger.info(embeddings)
     print("-------------------------------------------------")
     
