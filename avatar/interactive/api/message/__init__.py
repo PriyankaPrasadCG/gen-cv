@@ -16,6 +16,7 @@ from langchain.embeddings.openai import OpenAIEmbeddings
 from langchain.chains.question_answering import load_qa_chain
 from langchain.chat_models import AzureChatOpenAI
 from langchain_community.vectorstores import FAISS
+from appinsight_logger import app_logger
 
 search_endpoint = os.getenv("AZURE_SEARCH_ENDPOINT")
 search_key = os.getenv("AZURE_SEARCH_API_KEY") 
@@ -567,9 +568,9 @@ def get_embeddings_from_azure_search(messages):
 
 
 def automate_query_response(query):
-    print("Azure automate_query_response")
-    print(query)
-    print("-------------------------------------------------")
+    app_logger.info("Arun - Azure automate_query_response")
+    app_logger.info(query)
+    app_logger.info("Arun - -------------------------------------------------")
     API_KEY = "8f883522af8b48829a01b12446382361"
     RESOURCE_ENDPOINT = "https://daisygpt.openai.azure.com/"
     os.environ["OPENAI_API_TYPE"] = "azure"
@@ -578,14 +579,14 @@ def automate_query_response(query):
     os.environ["OPENAI_API_KEY"] = API_KEY
     
     
-    print("-------------------------------------------------")
+    app_logger.info("Arun-------------------------------------------------")
     embeddings = OpenAIEmbeddings(deployment='textembedding-ada-002-daisy', model="text-embedding-ada-002", chunk_size=1)
-    print(embeddings)
+    app_logger.info(embeddings)
     print("-------------------------------------------------")
     
     #strFaisspath = blob_sas_url.split("?")[0] + f"daisyknowledgeblob/faiss_index?" + blob_sas_url.split("?")[1]
-    
-    new_db = FAISS.load_local(os.path.join("api","message","faiss_index"), embeddings)
+    app_logger.info("Arun" + os.path.join("faiss_index"))
+    new_db = FAISS.load_local(os.path.join("faiss_index"), embeddings)
 
     llm = AzureChatOpenAI(
         deployment_name="gpt35turbodaisy",
