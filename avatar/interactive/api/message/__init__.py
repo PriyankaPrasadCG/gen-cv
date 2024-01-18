@@ -16,7 +16,7 @@ from langchain.embeddings.openai import OpenAIEmbeddings
 from langchain.chains.question_answering import load_qa_chain
 from langchain.chat_models import AzureChatOpenAI
 from langchain_community.vectorstores import FAISS
-
+from azure.storage.blob import BlobServiceClient, ContainerClient
 
 search_endpoint = os.getenv("AZURE_SEARCH_ENDPOINT")
 search_key = os.getenv("AZURE_SEARCH_API_KEY") 
@@ -584,10 +584,18 @@ def automate_query_response(query):
     print(embeddings)
     print("-------------------------------------------------")
     
+    # Create a BlobServiceClient
+    blob_service_client = BlobServiceClient(account_url=f"https://daisystorageblob.blob.core.windows.net", credential="r/MYvri5quaqmKxzibRAHgGyPB3fvfCBkox0J9VsOisqjZ/Z0TsWqFjGmThPytI41+CdqmFgNg9Y+AStobxUTA==")
+
+    # Get a reference to the container
+    container_client = blob_service_client.get_container_client("daisyknowledgeblob")
+
+    # Construct the URL for the "folder" (blob prefix)
+    folder_url = f"https://daisystorageblob.blob.core.windows.net/daisyknowledgeblob/faiss_index"
+
+    #strFaisspath = blob_sas_url.split("?")[0] + f"daisyknowledgeblob/faiss_index?" + blob_sas_url.split("?")[1]
     
-    strFaisspath = blob_sas_url.split("?")[0] + f"daisyknowledgeblob/faiss_index?" + blob_sas_url.split("?")[1]
-    
-    new_db = FAISS.load_local("./faiss_index", embeddings)
+    new_db = FAISS.load_local(folder_url, embeddings)
 
     llm = AzureChatOpenAI(
         deployment_name="gpt35turbodaisy",
